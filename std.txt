@@ -1,0 +1,95 @@
+ac age org.examp e. adoopc es;
+public class CDRConstants {
+public
+public
+public
+public
+public
+static
+static
+static
+static
+static
+int fromPhoneNumber e;
+int toPhoneNumber • 1;
+int caUStartTime • 2;
+int catlEndTime 3;
+int STDFLag 4;
+
+import
+import
+import
+import
+import
+import
+import
+import
+import
+import
+import
+import
+import
+ackage org.example.hadoopcodes;
+java. io. IOException;
+java. text. ParseException;
+java. text. SimpleDateForrat ;
+java. util.Date;
+org.apache.hadoop.conf.Configuration;
+org.apache.hadoop.fs.Path;
+org.apache.hadoop.io.Longwritabie;
+org.apache.hadoop.io.Text;
+apache. hadoop. mapreduce. Job
+org.apache.hadoop.mapreduce.Iib.output.FileOutputFormat ;
+org.
+or g •
+org•
+org•
+apache. hadoop. mapreduce .Happer ;
+apache. hadoop. mapreduce. Reducer;
+apache. hadoop. mapreduce. lib. input. File InputFormat;
+
+P
+c stat c c ass Token zerBapper extends
+mapper<Object, Text, Text, Longwritable» {
+Text phoneNu•ber • new Text();
+Longwritable durationInHinutes • new
+public void •ap(Object key, Text value,
+Mapper<Object, Text, Text, LongWritabIe>.Context context)
+throws IOException, InterruptedException {
+String() parts •
+if (partstCDRConstants.StDFlog) .equaisIgnoreCaseCi")) {
+phoneNumber. set ( part s [CDRConstants ) ;
+String callEndTime • parts [CDRConstants.caLLEndTime);
+String cailStartTime • parts (CDRConstants.catLStartTime);
+long duration • toMi11is(callEndTime) - toHi11is(callStartTime);
+durationInMinutes.set(duration / (iøee • 6ø));
+context.vrite(phoneNurber, durationInMinutes);
+
+pu c stat c c ass um e ucer exte s
+Reducerdext, LongWritable, text, Longwritabiey {
+private Longwritable result • new Longwritabie();
+public void reduce(Text key, Iterable<Longwritabley values,
+Reducet<Text, Longwritable, Text, Longwritable>.Context context)
+thrm€s IOException, InterruptedException {
+long sum e;
+for (Longedritable val : values) {
+sum +- val.get();
+this. result. set(sun);
+if (sum 60) {
+context.write(key, this.result);
+
+public class STDSubscribers {
+public static void args) thrm€s Exception {
+Configuration conf • new Configuration();
+if (args.iength 2) {
+System.err.printin(ØUsage: stdsubscriber < in)
+System. exit(2);
+Job job new "STD Subscribers");
+job. set)arByC1ass (STDSubscribers. class) ;
+job. setmapperC1ass(Tokenizermapper. class);
+job. setCombinerC1ass(SumReducer. class) ;
+job. setReducerCIass (SumReducer. class) ;
+job. setOutputKeyC1ass (Text. class) ;
+job. setOutputVaIueCIass ( LongWritabIe. class) ;
+FileInputFormat.addrnputPath(job, new Path(argste)));
+new

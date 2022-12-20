@@ -1,0 +1,101 @@
+import java.io.IOException;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+public static class employeeMaper
+  extends Mapper<LongWritable, Text, Text, IntWritable> {
+  private static final IntWritable one = new IntWritable(1);
+  private final Text word = new Text();
+
+  public void map(LongWritable key, Text value, Context context)
+    throws IOException, InterruptedException {
+    if (key.get() == 0) {
+      return;
+    } else {
+      String valueString = value.toString();
+      String[] employeeData = valueString.split(",");
+      context.write(
+        new Text(employeeData[3]),
+        new IntWritable(Integer.parseInt(employeeData[4]))
+      );
+    }
+  }
+}
+
+import java.io.IOException;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+public class employeeReducer 
+    extends Reducer<Text, IntWritable, Text, IntWritable> {
+
+    private IntWritable result = new IntWritable();
+
+    public void reduce(Text t_key,Iterable<IntWritable> values,Context context)throws IOException, InterruptedException {
+      int max = 0;
+      for (IntWritable val : values) {
+        if(max<val.get()){
+            max=val.get();
+        }
+      }
+      result.set(max);
+      context.write(t_key, result);
+    }
+  }
+}
+
+import java.io.IOException;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+public class employee {
+
+  public static void main(String[] args) throws Exception {
+    Configuration conf = new Configuration();
+    Job job = Job.getInstance(conf, "employee with max salary");
+    job.setJarByClass(empoyeeDriver.class);
+    job.setMapperClass(employeeMapper.class);
+    job.setReducerClass(empoyeeReducer.class);
+    job.setOutputKeyClass(Text.class);
+    job.setOutputValueClass(IntWritable.class);
+    FileInputFormat.addInputPath(job, new Path(args[1]));
+    FileOutputFormat.setOutputPath(job, new Path(args[2]));
+    System.exit(job.waitForCompletion(true) ? 0 : 1);
+  }
+}
+
+_id,city,id,name,salary
+63a0083cbb89d2c89bf7bb4f,anand,1,abc1,200000
+63a0083cbb89d2c89bf7bb50,anand,2,abc2,100000
+63a0083cbb89d2c89bf7bb51,anand,3,abc3,200000
+63a0083cbb89d2c89bf7bb52,anand,4,abc4,1100000
+63a0083cbb89d2c89bf7bb53,anand,5,abc5,90000
+63a0083cbb89d2c89bf7bb54,anand,6,abc6,500000
+63a0083cbb89d2c89bf7bb55,anand,7,abc7,600000
+63a0083cbb89d2c89bf7bb56,anand,8,abc8,1100000
+63a0083cbb89d2c89bf7bb57,anand,9,abc9,320000
+63a0083cbb89d2c89bf7bb58,anand,10,abc10,7000000

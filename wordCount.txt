@@ -1,0 +1,45 @@
+import java.io.lOException;import java.util.StringTokenizer;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.lntWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FilelnputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+public class WordCount
+public static class TokenizedMapper extends Mapper<Object, Text, Text, IntWritable>
+private Text word = new Text();
+private final static IntWritable one = new IntWritable(I);
+public void map(Object key, Text value, Context context ) throws IOException,
+InterruptedException
+StringTokenizer itr = new StringTokenizer(value.toString());
+while (itr.hasMoreTokens())
+word.set(itr.nextToken());
+context.write(word, one);
+
+public static class IntSumReducer extends Reducer<Text,lntWritable,Text,lntWritable>
+private IntWritable regult = new IntWritable();
+public void reduce(Text key, Iterable<lntWritable>values, Context context )
+throws IOException, InterruptedException
+int sum = O;
+for (IntWritable val : values)
+sum += val.get();
+result.set(sum);
+context.write(key, result);
+
+
+public static void args) throws Exception
+Configuration conf = new Configuration();
+Job job = Job.getlnstance(conf, "word count");
+job.setJarByClass(WordCount.class);
+job.setMapperClass(TokenizerMapper.class);
+job.setCombinerClass(lntSumßeducer.class);
+job.setReducerClass(lntSumReducer.class);
+job.setOutputKeyClass(Text.class);
+job.setOutputValueClass(lntWritable.class);
+FilelnputFormat.addlnputPath(job, new Path(args[01));
+FileOutputFormat.setOutputPath(job, new Path(args[ll));
+System.exit(job.waitForCompletion(true) ? O : 1);
